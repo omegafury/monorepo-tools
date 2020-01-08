@@ -20,6 +20,9 @@ fi
 MONOREPO_SCRIPT_DIR=$(dirname "$0")
 # Wipe original refs (possible left-over back-up after rewriting git history)
 $MONOREPO_SCRIPT_DIR/original_refs_wipe.sh
+
+BUILD_BRANCH=$(basename "$PWD")
+echo "Building monorepo version of branch: ${BUILD_BRANCH}"
 for PARAM in $@; do
     # Parse parameters in format <remote-name>[:<subdirectory>]
     PARAM_ARR=(${PARAM//:/ })
@@ -31,21 +34,21 @@ for PARAM in $@; do
     # Rewrite all branches from the first remote, only master branches from others
     if [ "$PARAM" == "$1" ]; then
         echo "Building all branches of the remote '$REMOTE'"
-        $MONOREPO_SCRIPT_DIR/load_branches_from_remote.sh $REMOTE
+        $MONOREPO_SCRIPT_DIR/load_branches_from_remote.sh $REMOTE $BUILD_BRANCH
         $MONOREPO_SCRIPT_DIR/rewrite_history_into.sh $SUBDIRECTORY --branches
-        MERGE_REFS='master'
+        MERGE_REFS=$BUILD_BRANCH
     else
         echo "Building branch 'master' of the remote '$REMOTE'"
-        git checkout --detach $REMOTE/master
+        git checkout --detach $REMOTE/$BUILD_BRANCH
         $MONOREPO_SCRIPT_DIR/rewrite_history_into.sh $SUBDIRECTORY
         MERGE_REFS="$MERGE_REFS $(git rev-parse HEAD)"
     fi
     # Wipe the back-up of original history
     $MONOREPO_SCRIPT_DIR/original_refs_wipe.sh
 done
-# Merge all master branches
+# Merge all BUILD_BRANCH branches
 COMMIT_MSG="merge multiple repositories into a monorepo"$'\n'$'\n'"- merged using: 'monorepo_build.sh $@'"$'\n'"- see https://github.com/shopsys/monorepo-tools"
-git checkout master
+git checkout $BUILD_BRANCH
 echo "Merging refs: $MERGE_REFS"
 git merge --no-commit -q $MERGE_REFS --allow-unrelated-histories
 echo 'Resolving conflicts using trees of all parents'
@@ -55,5 +58,7 @@ for REF in $MERGE_REFS; do
     git ls-tree -r $REF | git update-index --index-info
 done
 git commit -m "$COMMIT_MSG"
+git rm --cached -r .
 git reset --hard
 
+git push -f origin $BUILD_BRANCH
