@@ -1,7 +1,7 @@
 
-This is a fork of the Shopsys Monorepo Tools set of bash functions. The original library handles migrating multiple repositories into a single monorepo, however, it only migrates all branches of the first provided repository, then only migrates master for all other branches. We needed a slightly more dynamic migration, as we wanted to keep more than just the master of all migrated repo's, so some significant modification of the original scripts has been done. To that end, this version will only handle migrating INTO a monorepo from several reposities, and will NOT handle migrating back out into separate repos from a monorepo, like the original scripts do.
+This is a fork of the Shopsys Monorepo Tools set of bash functions. The original library handles migrating multiple repositories into a single monorepo, however, it only migrates all branches of the first provided repository, then only migrates master for all other repos. We needed a slightly more dynamic migration, as we wanted to keep more than just the master of all migrated repo's, so some significant modification of the original scripts has been done. To that end, this version will only handle migrating INTO a monorepo from several reposities, and will NOT handle migrating back out into separate repos from a monorepo, like the original scripts do.
 
-To get this working you'll need a set of repos you want to migrate, as well as a repository to serve as the monorepo. This monorepo should have a branch called "initializer", and can have as much or as little in it. Ours just had an empty README.md and a .gitignore file.  This branch will be used as the initial set of changes when generating each new monorepo branch you're migrating from your child repositories. 
+To get this working you'll need a set of repos you want to migrate, as well as a repository to serve as the monorepo. This monorepo should have a branch called "initializer", and can have as much or as little in it as you want. Ours just had an empty README.md and a .gitignore file.  This branch will be used as the initial set of changes when generating each new monorepo branch you're migrating from your child repositories. 
 
 ## Quick start
 
@@ -10,7 +10,7 @@ To get this working you'll need a set of repos you want to migrate, as well as a
 First download this repository so you can use the tools (eg. into `~/monorepo-tools`).
 
 ### 2. Preparing an empty repository for the monorepo
-In Gitlab you'll want to prepare a new repository that will be your monorepo. This repository needs to contain a branch called "initializer". The initializer branch can have as much or as little in it as you want, but it will be used as the staging point for building each branch you migrate, and will therefore have its contents be present in each migrated branch. In our migration this branch simply contained an empty README.md and a .gitignore containing all of the .gitignore contents from our repos being migrated. You'll need to preface each .gitignore entry from your repos with the subdirectory that the code will be in after migration.
+In Git you'll want to prepare a new repository that will be your monorepo. This repository needs to contain a branch called "initializer". The initializer branch can have as much or as little in it as you want, but it will be used as the staging point for building each branch you migrate, and will therefore have its contents be present in each migrated branch. In our migration this branch simply contained an empty README.md and a .gitignore containing all of the .gitignore contents from our repos being migrated. You'll need to preface each .gitignore entry from your repos with the subdirectory that the code will be in after migration.
 
 For example, you have a frontend repository with a .gitignore that only contains the following:
 ```
@@ -31,7 +31,7 @@ Finally, to ensure you have a smooth post migration cleanup, you should do a fin
 
 For example, you have this branch structure:
 * master
-    * rc-3.20.8
+    * rc-2.0.0
     * develop
         * FEATURE-1
 
